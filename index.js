@@ -282,27 +282,39 @@ export default class EmojiSelector extends Component {
       showSearchBar,
       showSectionTitles,
       showTabs,
+      CustomSearchBar,
+      customTitle,
       ...other
     } = this.props;
 
     const { category, colSize, isReady, searchQuery } = this.state;
 
-    const Searchbar = (
-      <View style={styles.searchbar_container}>
-        <TextInput
-          style={styles.search}
-          placeholder={placeholder}
-          clearButtonMode="always"
-          returnKeyType="done"
-          autoCorrect={false}
-          underlineColorAndroid={theme}
-          value={searchQuery}
-          onChangeText={this.handleSearch}
-        />
-      </View>
-    );
+    const Searchbar = () => {
+      if (typeof CustomSearchBar !== 'undefined' && CustomSearchBar) {
+        return (
+          <CustomSearchBar 
+            value={searchQuery}
+            onChangeText={this.handleSearch}
+          />
+        )
+      }
+      return (
+          <View style={styles.searchbar_container}>
+            <TextInput
+              style={styles.search}
+              placeholder={placeholder}
+              clearButtonMode='always'
+              returnKeyType='done'
+              autoCorrect={false}
+              underlineColorAndroid={theme}
+              value={searchQuery}
+              onChangeText={this.handleSearch}
+            />
+          </View>
+          )
+    };
 
-    const title = searchQuery !== "" ? "Search Results" : category.name;
+    const title = searchQuery !== '' ? (customTitle || 'Search Results') : category.name;
 
     return (
       <View style={styles.frame} {...other} onLayout={this.handleLayout}>
@@ -331,17 +343,19 @@ export default class EmojiSelector extends Component {
                   renderItem={this.renderEmojiCell}
                   horizontal={false}
                   numColumns={columns}
-                  keyboardShouldPersistTaps={"always"}
+                  keyboardShouldPersistTaps='always'
                   ref={scrollview => (this.scrollview = scrollview)}
                   removeClippedSubviews
+                  showsVerticalScrollIndicator={false}
+                  showsHorizontalScrollIndicator={false}
                 />
               </View>
             </View>
           ) : (
             <View style={styles.loader} {...other}>
               <ActivityIndicator
-                size={"large"}
-                color={Platform.OS === "android" ? theme : "#000000"}
+                size='large'
+                color={Platform.OS === 'android' ? theme : '#000000'}
               />
             </View>
           )}
@@ -381,7 +395,7 @@ const styles = StyleSheet.create({
   searchbar_container: {
     width: "100%",
     zIndex: 1,
-    backgroundColor: "rgba(255,255,255,0.75)"
+    // backgroundColor: "rgba(255,255,255,0.75)"
   },
   search: {
     ...Platform.select({
