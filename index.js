@@ -25,10 +25,6 @@ export const Categories = {
     symbol: "😀",
     name: "Smileys & Emotion"
   },
-  people: {
-    symbol: "🧑",
-    name: "People & Body"
-  },
   nature: {
     symbol: "🦄",
     name: "Animals & Nature"
@@ -68,7 +64,7 @@ const emojiByCategory = category =>
 const sortEmoji = list => list.sort((a, b) => a.sort_order - b.sort_order);
 const categoryKeys = Object.keys(Categories);
 
-const TabBar = ({ theme, activeCategory, onPress, width }) => {
+const TabBar = ({ theme, activeCategory, onPress, width, customTabs }) => {
   const tabSize = width / categoryKeys.length;
 
   return categoryKeys.map(c => {
@@ -81,21 +77,28 @@ const TabBar = ({ theme, activeCategory, onPress, width }) => {
           style={{
             flex: 1,
             height: tabSize,
-            borderColor: category === activeCategory ? theme : "#EEEEEE",
-            borderBottomWidth: 2,
-            alignItems: "center",
-            justifyContent: "center"
+            alignItems: 'center',
+            justifyContent: 'center'
           }}
         >
-          <Text
-            style={{
-              textAlign: "center",
-              paddingBottom: 8,
-              fontSize: tabSize - 24
-            }}
-          >
-            {category.symbol}
-          </Text>
+          {customTabs ? 
+            customTabs({ selected: category === activeCategory, symbol: category.symbol, category })
+          :  
+          <View style={{
+            backgroundColor: category === activeCategory ? 'rgba(184, 184, 184, 0.8)' : 'rgba(184, 184, 184, 0.2)',
+            borderRadius: 50,
+            padding: 3
+          }}>
+            <Text
+              style={{
+                textAlign: "center",
+                fontSize: tabSize - 24
+              }}
+            >
+              {category.symbol}
+            </Text>
+          </View>
+          }
         </TouchableOpacity>
       );
   });
@@ -241,7 +244,7 @@ export default class EmojiSelector extends Component {
     let emojiList = {};
     categoryKeys.forEach(c => {
       let name = Categories[c].name;
-      emojiList[name] = sortEmoji(emojiByCategory(name));
+      emojiList[name] = sortEmoji(name === 'Smileys & Emotion' ? [...emojiByCategory('Smileys & Emotion'), ...emojiByCategory('People & Body')] : emojiByCategory(name));
     });
 
     this.setState(
@@ -284,6 +287,7 @@ export default class EmojiSelector extends Component {
       showTabs,
       CustomSearchBar,
       customTitle,
+      customTabs,
       ...other
     } = this.props;
 
@@ -314,7 +318,7 @@ export default class EmojiSelector extends Component {
           )
     };
 
-    const title = searchQuery !== '' ? (customTitle || 'Search Results') : category.name;
+    const title = searchQuery !== '' ? 'Search Results' : category?.name;
 
     return (
       <View style={styles.frame} {...other} onLayout={this.handleLayout}>
@@ -325,6 +329,7 @@ export default class EmojiSelector extends Component {
               onPress={this.handleTabSelect}
               theme={theme}
               width={this.state.width}
+              customTabs={customTabs}
             />
           )}
         </View>
@@ -333,7 +338,9 @@ export default class EmojiSelector extends Component {
           {isReady ? (
             <View style={{ flex: 1 }}>
               <View style={styles.container}>
-                {showSectionTitles && (
+                {showSectionTitles &&  customTitle ?
+                  customTitle({ category })
+                : (
                   <Text style={styles.sectionHeader}>{title}</Text>
                 )}
                 <FlatList
@@ -355,7 +362,7 @@ export default class EmojiSelector extends Component {
             <View style={styles.loader} {...other}>
               <ActivityIndicator
                 size='large'
-                color={Platform.OS === 'android' ? theme : '#000000'}
+                color={theme}
               />
             </View>
           )}
@@ -411,7 +418,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexWrap: "wrap",
-    flexDirection: "row",
+    flexDirection: "column",
     alignItems: "flex-start"
   },
   sectionHeader: {
