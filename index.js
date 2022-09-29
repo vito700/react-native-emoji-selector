@@ -288,6 +288,7 @@ export default class EmojiSelector extends Component {
       CustomSearchBar,
       customTitle,
       customTabs,
+      listSection,
       ...other
     } = this.props;
 
@@ -320,6 +321,8 @@ export default class EmojiSelector extends Component {
 
     const title = searchQuery !== '' ? 'Search Results' : category?.name;
 
+    const List = listSection || FlatList
+
     return (
       <View style={styles.frame} {...other} onLayout={this.handleLayout}>
         <View style={styles.tabBar}>
@@ -343,7 +346,7 @@ export default class EmojiSelector extends Component {
                 : (
                   <Text style={styles.sectionHeader}>{title}</Text>
                 )}
-                <FlatList
+                <List
                   style={styles.scrollview}
                   contentContainerStyle={{ paddingBottom: colSize }}
                   data={this.returnSectionData()}
